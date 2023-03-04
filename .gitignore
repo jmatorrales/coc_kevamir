@@ -1,1 +1,4 @@
 token
+*.xlsx
+__pycache_*
+.*checkpoints*
