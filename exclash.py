@@ -11,8 +11,8 @@ def get_headers():
         'authorization': f'Bearer ${token}'}
         
         
-# Genera una tabla con la lista de jugadores e info relevante y guarda como excel        
-def export_data():
+# Genera una tabla con la lista de jugadores e info relevante y guarda como excel, devuelve también los datos        
+def export_data() -> pd.DataFrame:
     headers = get_headers()    
     url_clan = 'https://api.clashofclans.com/v1/clans/%23'
     response = requests.get(url_clan + '2Y8LQVG8U', headers=headers)
@@ -21,6 +21,7 @@ def export_data():
                                           "clanRank","donations","donationsReceived"]]
     df.columns = ["Nom", "Rol", "Experiencia", "Copes", "Clan Rank", "Donacions", "Donacions Rebudes"]
     df.to_excel("ranking.xlsx", index=False)
+    return df
 
 
 if __name__ == "__main__":
