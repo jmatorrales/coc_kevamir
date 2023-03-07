@@ -2,3 +2,5 @@ token
 *.xlsx
 __pycache_*
 .*checkpoints*
+*.html
+.idea*
