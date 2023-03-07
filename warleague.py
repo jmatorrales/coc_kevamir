@@ -23,7 +23,7 @@ def rondas_conocidas(wtags: list) -> int:
 
 
 # Devuelve todos los datos que nos conciernen de cualquier ronda
-def datos_ronda(ronda, wtags) -> dict:
+def datos_ronda(ronda, wtags) -> list:
     for tag in wtags[ronda]["warTags"]:
         incumbe = nos_incumbe(tag)
         if incumbe:
@@ -74,7 +74,7 @@ def resume_datos_miembros(members_data: dict) -> pd.DataFrame:
     
     
 # Exporta a excel 
-def exportaDatosMiembrosLiga(clanID: str) -> pd.DataFrame:
+def exportaDatosMiembrosLiga(clanID: str, filetype="html") -> list:
     wartags_list: list
     datos_ronda_lista: list
     datos_liga: list
@@ -90,14 +90,32 @@ def exportaDatosMiembrosLiga(clanID: str) -> pd.DataFrame:
     for i in range(num_rondas):
         datos_ronda_lista = datos_ronda(i, wartags_list)
         datos_liga.append(resume_datos_miembros(datos_ronda_lista))
-        
-    # Finalmente exportamos el excel
-    writer = pd.ExcelWriter("DatosLiga.xlsx", engine='xlsxwriter')
-    for i in range(num_rondas):
-        datos_liga[i].to_excel(writer, sheet_name=f"Ronda {i+1}", index=False)
-    writer.close()
-    return datos_liga
+
+    if filetype == "xlsx":
+        writer = pd.ExcelWriter("DatosLiga.xlsx", engine='xlsxwriter')
+        for i in range(num_rondas):
+            datos_liga[i].to_excel(writer, sheet_name=f"Ronda {i+1}", index=False)
+        writer.close()
+        return datos_liga
+
+    elif filetype == "html":
+        # Abre un archivo HTML para escribir los resultados
+        with open("Liga de guerras.html", "w", encoding="UTF-8") as file:
+            file.write("<h1>Detalle rondas de liga</h1><br>")
+            # Itera sobre cada dataframe y crea un HTML con el título y el contenido
+            for i, df in enumerate(datos_liga):
+                title = f"<h2> Ronda {i + 1}</h2>"
+                df_html = df.to_html(border=0, classes="table", index=False)
+                # Agrega estilos CSS para personalizar la tabla
+                css = "<style>table.table, th, td { border: 1px solid black; border-collapse: collapse; padding: 6px;" \
+                      " }</style>"
+                file.write(f"{title}<br>{css}{df_html}<br>")
+
+    else:
+        print("Opción no válida, no se exportará ningún archivo")
 
 
-if __name__ == "__main__":	
-	exportaDatosMiembrosLiga("#2Y8LQVG8U")
+if __name__ == "__main__":
+    formato = input("En qué formato quieres exportar los datos ('x': xlsx, 'h': html)?")
+    std_format = "xlsx" if formato in "Xx" else "html" if formato in "Hh" else None
+    exportaDatosMiembrosLiga("#2Y8LQVG8U", std_format)
